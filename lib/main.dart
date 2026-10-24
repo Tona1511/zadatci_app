@@ -77,7 +77,10 @@ class _ZadatciZaslonState extends State<ZadatciZaslon> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_pogreska!),
+            const Text(
+              'Došlo je do pogreške pri dohvaćanju zadataka. Pokušajte ponovno.',
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _dohvatiZadatke,
@@ -89,21 +92,40 @@ class _ZadatciZaslonState extends State<ZadatciZaslon> {
     } else if (_zadatci.isEmpty) {
       sadrzaj = const Center(child: Text('Nema zadataka.'));
     } else {
-      sadrzaj = ListView.builder(
-        itemCount: _zadatci.length,
-        itemBuilder: (context, index) {
-          final zadatak = _zadatci[index];
+      final brojZavrsenih = _zadatci.where((zadatak) => zadatak.zavrsen).length;
 
-          return ListTile(
-            leading: Icon(
-              zadatak.zavrsen
-                  ? Icons.check_circle
-                  : Icons.radio_button_unchecked,
+      sadrzaj = Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Završeno: $brojZavrsenih od ${_zadatci.length}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            title: Text(zadatak.naslov),
-            subtitle: Text(zadatak.zavrsen ? 'Gotovo' : 'U tijeku'),
-          );
-        },
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _dohvatiZadatke,
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: _zadatci.length,
+                itemBuilder: (context, index) {
+                  final zadatak = _zadatci[index];
+
+                  return ListTile(
+                    leading: Icon(
+                      zadatak.zavrsen
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                    ),
+                    title: Text(zadatak.naslov),
+                    subtitle: Text(zadatak.zavrsen ? 'Gotovo' : 'U tijeku'),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       );
     }
 

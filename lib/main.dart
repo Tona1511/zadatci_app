@@ -13,6 +13,10 @@ class MojaAplikacija extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Moji zadatci',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
+      ),
       home: const ZadatciZaslon(),
     );
   }
@@ -131,6 +135,11 @@ class _ZadatciZaslonState extends State<ZadatciZaslon> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Moji zadatci')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        tooltip: 'Novi zadatak',
+        child: const Icon(Icons.add),
+      ),
       body: sadrzaj,
     );
   }

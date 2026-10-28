@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'forma_ekran.dart';
 import 'repozitorij.dart';
 import 'zadatak.dart';
 
@@ -45,6 +46,7 @@ class _ZadatciZaslonState extends State<ZadatciZaslon> {
     _dohvatiZadatke();
   }
 
+  // Dohvaćanje zadataka iz repozitorija.
   Future<void> _dohvatiZadatke() async {
     setState(() {
       _ucitava = true;
@@ -70,19 +72,42 @@ class _ZadatciZaslonState extends State<ZadatciZaslon> {
     }
   }
 
+  // Otvaranje forme i dodavanje novog zadatka.
+  Future<void> _dodaj() async {
+    final novi = await Navigator.push<Zadatak>(
+      context,
+      MaterialPageRoute(builder: (_) => FormaEkran(postojeci: _zadatci)),
+    );
+
+    // Ako je korisnik odustao ili zaslon više ne postoji.
+    if (!mounted || novi == null) return;
+
+    setState(() {
+      _zadatci.add(novi);
+    });
+
+    // Potvrda uspješnog dodavanja.
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Dodano: ${novi.naslov}')));
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget sadrzaj;
 
+    // Stanje učitavanja.
     if (_ucitava) {
       sadrzaj = const Center(child: CircularProgressIndicator());
+
+      // Stanje pogreške.
     } else if (_pogreska != null) {
       sadrzaj = Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Došlo je do pogreške pri dohvaćanju zadataka. Pokušajte ponovno.',
+              'Došlo je do pogreške pri dohvaćanju zadataka. '
+              'Pokušajte ponovno.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -93,8 +118,12 @@ class _ZadatciZaslonState extends State<ZadatciZaslon> {
           ],
         ),
       );
+
+      // Prazan popis.
     } else if (_zadatci.isEmpty) {
       sadrzaj = const Center(child: Text('Nema zadataka.'));
+
+      // Prikaz zadataka.
     } else {
       final brojZavrsenih = _zadatci.where((zadatak) => zadatak.zavrsen).length;
 
@@ -136,7 +165,7 @@ class _ZadatciZaslonState extends State<ZadatciZaslon> {
     return Scaffold(
       appBar: AppBar(title: const Text('Moji zadatci')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _dodaj,
         tooltip: 'Novi zadatak',
         child: const Icon(Icons.add),
       ),
